@@ -1,2 +1,2 @@
 # Space-Invaders
-# dependencies : pip install pygame
+ dependencies : pip install pygame
