@@ -1,8 +1,11 @@
 import pygame
+from pygame import mixer
+
 import os
-import time
 import random
-pygame.font.init()
+
+pygame.init()
+clock = pygame.time.Clock()
 
 WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -24,6 +27,15 @@ YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"
 
 # Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
+
+# Load sounds
+BG_SOUND = os.path.join("assets", "background.wav")
+LASER_SOUND = os.path.join("assets", "laser.wav")
+EXPLOSION_SOUND = os.path.join("assets", "explosion.wav")
+
+# Background sound
+mixer.music.load(BG_SOUND)
+mixer.music.play(-1)  # (-1) to play in a loop
 
 
 def collide(obj1, obj2):
@@ -77,6 +89,8 @@ class Ship:
                 self.lasers.remove(laser)
             elif laser.collision(obj):
                 obj.health -= 10
+                explosion_sound = mixer.Sound(EXPLOSION_SOUND)
+                explosion_sound.play()
                 self.lasers.remove(laser)
 
     def cooldown(self):
@@ -116,6 +130,8 @@ class Player(Ship):
                 for obj in objs:
                     if laser.collision(obj):
                         objs.remove(obj)
+                        explosion_sound = mixer.Sound(EXPLOSION_SOUND)
+                        explosion_sound.play()
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
@@ -169,8 +185,6 @@ def main():
 
     lost = False
     lost_count = 0
-
-    clock = pygame.time.Clock()
 
     def redraw_window():
         WIN.blit(BG, (0, 0))
@@ -231,6 +245,8 @@ def main():
         if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and player.y + player_velocity + player.get_height() + 15 < HEIGHT: #down
             player.y += player_velocity
         if keys[pygame.K_SPACE]:
+            laser_sound = mixer.Sound(LASER_SOUND)
+            laser_sound.play()
             player.shoot()
 
         for enemy in enemies[:]:
@@ -242,6 +258,8 @@ def main():
 
             if collide(enemy, player):
                 player.health -= 10
+                explosion_sound = mixer.Sound(EXPLOSION_SOUND)
+                explosion_sound.play()
                 enemies.remove(enemy)
             elif enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
